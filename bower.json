@@ -1,0 +1,22 @@
+{
+  "name": "angular-datepicker",
+  "homepage": "https://github.com/sandrotaje/angular-datepicker",
+  "authors": [
+    "Sandro Tajè <sandro.taje@holonix.it>"
+  ],
+  "description": "Responsive angular datepicker",
+  "main": ["angular-datepicker.js", "angular-datepicker.css"],
+  "keywords": [
+    "angular",
+    "datepicker",
+    "responsive"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

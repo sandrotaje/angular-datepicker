@@ -36,20 +36,7 @@ angular.module("angular-datepicker", []).directive("datepicker", function () {
             }
 
 
-            $scope.monthNames = {
-                0: "Gennaio",
-                1: "Febbraio",
-                2: "Marzo",
-                3: "Aprile",
-                4: "Maggio",
-                5: "Giugno",
-                6: "Luglio",
-                7: "Agosto",
-                8: "Settembre",
-                9: "Ottobre",
-                10: "Novembre",
-                11: "Dicembre"
-            };
+            $scope.monthNames = $scope.options.monthNames || ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
 
 
             $scope.generateMonth = function (selectedDate) {
@@ -219,7 +206,20 @@ angular.module("angular-datepicker", []).directive("datepicker", function () {
             };
 
         },
-        template: '<div class="datepicker"> <div data-ng-click="opened=!disabled;daySelectionOpened=!disabled" class="selectable"><i class="fa fa-calendar"></i> {{modelDate | date: "dd/MM/yyyy" | emptyDateFilter}}</div> <div class="datepicker-wrapper" data-ng-show="opened" data-ng-click="opened=!opened;daySelectionOpened=true;yearSelectionOpened=false;"></div><div class="datepicker-close" data-ng-show="opened" data-ng-click="opened=!opened;daySelectionOpened=true;yearSelectionOpened=false;"> <button type="button"></button> </div><div class="datepicker-table-wrapper table" data-ng-show="daySelectionOpened && opened"> <table> <thead> <tr class="month-header"> <th><a data-ng-click="subMonth(month.selectedDate)">{{getPreviousMonthName()}}</a></th> <th colspan="5" data-ng-click="toggleYearSelection()"> <button type="button">{{monthNames[month.selectedDate.getMonth()]}}{{month.selectedDate.getFullYear()}}</button> </th> <th><a data-ng-click="addMonth(month.selectedDate)">{{getSuccessiveMonthName()}}</a></th> </tr><tr> <th>Mon</th> <th>Tue</th> <th>Wed</th> <th>Thu</th> <th>Fri</th> <th>Sat</th> <th>Sun</th> </tr></thead> <tbody> <tr data-ng-repeat="week in month.weeks"> <td data-ng-click="!day.isDisabled && selectDay(day.date)" data-ng-repeat="day in week" data-ng-class="{\'disabled\': day.isDisabled,\'selected-date\': day.isSelectedDate, \'today\': day.isToday, \'different-month\': !day.isDisabled && day.differentMonth}"><a>{{day.number}}</a></td></tr><tr> <td colspan="7"> <button type="button" class="datepicker-button-clear" data-ng-click="clear()">Clean</button> </td></tr></tbody> </table> </div><div class="datepicker-table-wrapper table" data-ng-show="yearSelectionOpened && opened"> <table> <thead> <tr class="month-header"> <th><a data-ng-click="precYears()">prev</a></th> <th colspan="3">{{years[0][0].num}}-{{years[years.length - 1][years[years.length - 1].length - 1].num}}</th> <th><a data-ng-click="succYears()">next</a></th> </tr></thead> <tbody> <tr data-ng-repeat="list in years"> <td data-ng-repeat="year in list" data-ng-click="selectYear(year.num)" data-ng-class="{\'selected-date\': year.isSelectedYear, \'today\': year.isActualYear}"> <a>{{year.num}}</a> </td></tr><tr></tr></tbody> </table> </div></div>'
+        template: '<div class="datepicker"> <div data-ng-click="opened=!disabled;daySelectionOpened=!disabled" class="selectable"><i class="fa fa-calendar"></i> {{modelDate | date: "dd/MM/yyyy" | emptyDateFilter}}</div> <div class="datepicker-wrapper" data-ng-show="opened" data-ng-click="opened=!opened;daySelectionOpened=true;yearSelectionOpened=false;"></div><div class="datepicker-close" data-ng-show="opened" data-ng-click="opened=!opened;daySelectionOpened=true;yearSelectionOpened=false;"> <button type="button"></button> </div><div class="datepicker-table-wrapper table" data-ng-show="daySelectionOpened && opened"> <table> <thead> <tr class="month-header"> <th><a data-ng-click="subMonth(month.selectedDate)">{{getPreviousMonthName()}}</a></th> <th colspan="5" data-ng-click="toggleYearSelection()"> <button class="button-month" type="button">{{monthNames[month.selectedDate.getMonth()]}}{{month.selectedDate.getFullYear()}}</button> </th> <th><a data-ng-click="addMonth(month.selectedDate)">{{getSuccessiveMonthName()}}</a></th> </tr><tr> <th>Mon</th> <th>Tue</th> <th>Wed</th> <th>Thu</th> <th>Fri</th> <th>Sat</th> <th>Sun</th> </tr></thead> <tbody> <tr data-ng-repeat="week in month.weeks"> <td data-ng-click="!day.isDisabled && selectDay(day.date)" data-ng-repeat="day in week" data-ng-class="{\'disabled\': day.isDisabled,\'selected-date\': day.isSelectedDate, \'today\': day.isToday, \'different-month\': !day.isDisabled && day.differentMonth}"><a>{{day.number}}</a></td></tr><tr> <td colspan="7"> <button type="button" class="datepicker-button-clear" data-ng-click="clear()">Clean</button> </td></tr></tbody> </table> </div><div class="datepicker-table-wrapper table" data-ng-show="yearSelectionOpened && opened"> <table> <thead> <tr class="month-header"> <th><a data-ng-click="precYears()">prev</a></th> <th colspan="3">{{years[0][0].num}}-{{years[years.length - 1][years[years.length - 1].length - 1].num}}</th> <th><a data-ng-click="succYears()">next</a></th> </tr></thead> <tbody> <tr data-ng-repeat="list in years"> <td data-ng-repeat="year in list" data-ng-click="selectYear(year.num)" data-ng-class="{\'selected-date\': year.isSelectedYear, \'today\': year.isActualYear}"> <a>{{year.num}}</a> </td></tr><tr></tr></tbody> </table> </div></div>'
 
     };
-});
+}).filter("emptyDateFilter", function () {
+        return function (input) {
+            if (!input)
+                return "--/--/----";
+            return input;
+        };
+    })
+    .filter("emptyFilter", function () {
+        return function (input) {
+            if (!input)
+                return "-";
+            return input;
+        };
+    });

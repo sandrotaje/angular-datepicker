@@ -1,7 +1,3 @@
-/*.datepicker .datepicker-wrapper.ng-hide {*/
-    /*opacity: 0;*/
-/*}*/
-
 
 .datepicker .datepicker-wrapper {
     position: fixed;
@@ -21,7 +17,7 @@
     /*opacity: 0;*/
 /*}*/
 
-.datepicker .table {
+.datepicker .table table{
     position: fixed;
     background-color: #f8faf9;
     line-height: 45px;
@@ -80,7 +76,7 @@
 .datepicker-close button {
     position: fixed;
     top: calc(50% - 240px);
-    left: calc(50% + 250px);
+    left: calc(50% + 230px);
     z-index: 10000;
     background-color: #be1d2c;
     width: 40px;
@@ -89,6 +85,8 @@
     text-align: center;
     border-radius: 40px;
     padding: 0;
+    border: none;
+    cursor: pointer;
     /*opacity:1;*/
     /*transform: rotateZ(0deg);*/
     /*transition: opacity 300ms cubic-bezier(0.68, -0.55, 0.43, 1.09);*//*, transform 1000ms cubic-bezier(0.68, -0.55, 0.43, 1.09);*/
@@ -118,6 +116,17 @@
     color: white;
     background-color: #BE1D2C;
     padding: 17px;
+    border: none;
+    border-radius: 5px;
+}
+.datepicker button.button-month {
+    padding: 10px;
+    border: none;
+    background: #be1d2c;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 @media screen and (max-width: 600px) {

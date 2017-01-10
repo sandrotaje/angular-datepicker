@@ -1,4 +1,4 @@
-angular.module("cboat.directives").directive("datepicker", function () {
+angular.module("angular-datepicker").directive("datepicker", function () {
     return {
         restrict: "A",
         scope: {

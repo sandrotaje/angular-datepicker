@@ -1,18 +1,38 @@
 <html ng-app="example">
+
 <head>
-    <link rel="stylesheet" href="./../angular-datepicker.css"
-</head>
-<body>
+    <link rel="stylesheet" href="./../angular-datepicker.css" </head>
 
-    <button data-datepicker data-model="1234567890"></button>
+    <body ng-controller="ExampleController">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
-    <script src="./../angular-datepicker.js"></script>
-    <script>
-    
-        angular.module('example', ['angular-datepicker']);
-    
-    </script>
+        <button data-datepicker data-model="day" data-options="options" data-events="events"></button>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+        <script src="./../angular-datepicker.js"></script>
+        <script>
+
+            angular.module('example', ['angular-datepicker']).controller('ExampleController', function ($scope, $timeout) {
+
+                $scope.day = 1451606400000;
+                $scope.options = {
+                    monthNames: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
+                    dayNames: ['Lunedi', 'Martedi', 'Mercoledi', 'Giovedi', 'Venerdi', 'Sabato', 'Domenica'],
+                    cleanName: 'Pulisci',
+                    selectName: 'Seleziona',
+                    dateFormat: "yyyy-MM-dd"
+                }
+
+                $scope.events = {
+                    onDaySelected: onDaySelected
+                }
+
+
+                function onDaySelected() {
+                    console.log($scope.day);
+                }
+            });
+
+        </script>
 </body>
 
 

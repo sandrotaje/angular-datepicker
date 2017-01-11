@@ -83,7 +83,7 @@ angular.module("angular-datepicker", []).directive("datepicker", function ($time
                 };
                 $scope.generatedTimes.push(tmpObj);
                 
-                if ($scope.modelDate.getHours() == tmpObj.hour && $scope.modelDate.getMinutes() == tmpObj.minute && $scope.modelDate.getSeconds() == tmpObj.second) {
+                if ($scope.modelDate && $scope.modelDate.getHours() == tmpObj.hour && $scope.modelDate.getMinutes() == tmpObj.minute && $scope.modelDate.getSeconds() == tmpObj.second) {
                     $scope.selectedTime = tmpObj;
                 }
             }

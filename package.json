@@ -1,0 +1,22 @@
+{
+  "name": "angular-datepicker",
+  "version": "1.0.0",
+  "description": "angular responsive datepicker",
+  "main": "angular-datepicker.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sandrotaje/angular-datepicker.git"
+  },
+  "author": "Sandro Tajè",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sandrotaje/angular-datepicker/issues"
+  },
+  "homepage": "https://github.com/sandrotaje/angular-datepicker#readme"
+}

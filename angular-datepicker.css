@@ -1,3 +1,6 @@
+.datepicker {
+    position: absolute;
+}
 
 .datepicker .datepicker-wrapper {
     position: fixed;

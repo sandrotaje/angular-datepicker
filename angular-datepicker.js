@@ -18,7 +18,7 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
                 var html = elem.contents();
                 elem.empty();
                 if (!ngModel.$modelValue) {
-                    elem.html($scope.dateFormat);
+                    elem.html($scope.emptyString);
                 } else {
                     elem.html($filter("date")(ngModel.$modelValue, $scope.dateFormat));
                 }
@@ -62,6 +62,7 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
             var defaultCleanName = "Clean";
             var defaultSelectName = "Select";
             var defaultDateFormat = "dd/MM/yyyy";
+            var defaultEmptyString = "---";
             var defaultTimes = {
                 step: 1800,
                 from: 0,
@@ -77,6 +78,7 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
                 $scope.dateFormat = $scope.options.dateFormat || defaultDateFormat;
                 $scope.times = $scope.options.times || defaultTimes;
                 $scope.timepicker = $scope.options.timepicker || defaultTimepicker;
+                $scope.emptyString = $scope.options.emptyString || defaultEmptyString;
             } else {
                 $scope.monthNames = defaultMonths;
                 $scope.dayNames = defaultDays;
@@ -85,6 +87,7 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
                 $scope.dateFormat = defaultDateFormat;
                 $scope.times = defaultTimes;
                 $scope.timepicker = defaultTimepicker;
+                $scope.emptyString = defaultEmptyString;
             }
 
             if (!$scope.events) {

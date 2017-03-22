@@ -50,7 +50,7 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
                 } else {
                     //has to be a date for now
                     $scope.generateMonth($scope.standardDate);
-                    return $filter("date")($scope.standardDate, $scope.dateFormat);
+                    return $scope.emptyString;
                 }
             });
 

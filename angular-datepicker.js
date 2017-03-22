@@ -1,4 +1,4 @@
-angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'padFilter', '$filter', function ($timeout, padFilter, $filter) {
+angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'padFilter', '$filter', '$compile', function ($timeout, padFilter, $filter, $compile) {
     return {
         restrict: "A",
         scope: {
@@ -12,51 +12,50 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
         require: 'ngModel',
         link: function ($scope, elem, attrs, ngModel) {
 
-            function init(value) {
-
-                if (/^-?\d+$/.test(value)) {
-                    $scope.modelDate = new Date(value);
-                    $scope.generateMonth($scope.modelDate);
-                } else if (angular.isDate(value)) {
-                    $scope.modelDate = value;
-                    $scope.generateMonth(value);
-                } else if (value) {
-                    throw "Model format is wrong, only timestamp or javascript date object are supported";
-                } else {
-                    $scope.modelDate = value;
-                    $scope.generateMonth($scope.standardDate);
-                }
-            }
+            var first = true;
 
             ngModel.$render = function () {
-                init(ngModel.$modelValue);
-            }
+                var html = elem.contents();
+                elem.empty();
+                if (!ngModel.$modelValue) {
+                    elem.html($scope.dateFormat);
+                } else {
+                    elem.html($filter("date")(ngModel.$modelValue, $scope.dateFormat));
+                }
+                elem.on("click", function () {
+                    $scope.$applyAsync(function () {
+                        $scope.opened = true;
+                        $scope.daySelectionOpened = true;
+                    });
+                });
+                if (first) {
+                    first = false;
+                    elem.after($compile(html)($scope));
+                }
+            };
 
             ngModel.$parsers.push(function (value) {
-                return value ? value.getTime() : null;
+                return Date.parse(value);
             });
 
             ngModel.$formatters.push(function (value) {
-                return $filter('date')(value, $scope.dateFormat);
+                if (/^-?\d+$/.test(value)) {
+                    $scope.generateMonth(new Date(value));
+                    return $filter("date")(value, $scope.dateFormat);
+                } else if (angular.isDate(value)) {
+                    $scope.generateMonth(value);
+                    return $filter("date")(value, $scope.dateFormat);
+                } else if (value) {
+                    throw "Model format is wrong, only timestamp or javascript date object are supported";
+                } else {
+                    //has to be a date for now
+                    $scope.generateMonth($scope.standardDate);
+                    return $filter("date")($scope.standardDate, $scope.dateFormat);
+                }
             });
 
             $scope.opened = false;
             $scope.daySelectionOpened = false;
-
-            // if ($scope.fromDate) {
-            //     $scope.fromDate.setUTCHours(0);
-            //     $scope.fromDate.setUTCMinutes(0);
-            //     $scope.fromDate.setUTCSeconds(0);
-            //     $scope.fromDate.setUTCMilliseconds(0);
-            // }
-
-
-            // if ($scope.toDate) {
-            //     $scope.toDate.setUTCHours(0);
-            //     $scope.toDate.setUTCMinutes(0);
-            //     $scope.toDate.setUTCSeconds(0);
-            //     $scope.toDate.setUTCMilliseconds(0);
-            // }
 
             var defaultMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "Settember", "October", "November", "December"];
             var defaultDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -103,9 +102,17 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
                 };
                 $scope.generatedTimes.push(tmpObj);
 
-                if ($scope.modelDate && $scope.modelDate.getHours() == tmpObj.hour && $scope.modelDate.getMinutes() == tmpObj.minute && $scope.modelDate.getSeconds() == tmpObj.second) {
+                var selectedDate = new Date(ngModel.$modelValue);
+
+                if (selectedDate && selectedDate.getHours() == tmpObj.hour && selectedDate.getMinutes() == tmpObj.minute && selectedDate.getSeconds() == tmpObj.second) {
                     $scope.selectedTime = tmpObj;
                 }
+            }
+
+            $scope.closeWrapper = function () {
+                $scope.opened = false;
+                $scope.daySelectionOpened = true;
+                $scope.yearSelectionOpened = false;
             }
 
 
@@ -157,7 +164,7 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
 
                     var jsonDay = {
                         number: tmpDay.getUTCDate(),
-                        isSelectedDate: $scope.modelDate && tmpDay.getTime() === $scope.modelDate.getTime(),
+                        isSelectedDate: selectedDate && tmpDay.getTime() === selectedDate.getTime(),
                         isToday: tmpDay.getTime() === today.getTime(),
                         date: tmpDay,
                         differentMonth: tmpDay.getUTCMonth() !== selectedDate.getUTCMonth(),
@@ -174,19 +181,19 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
 
                 $scope.years = [];
 
-                var count = 0;
-                for (var num = $scope.month.selectedDate.getUTCFullYear() - 17; num <= $scope.month.selectedDate.getUTCFullYear() + 17; num++) {
-                    if (!$scope.years[count]) {
-                        $scope.years[count] = [];
+                for (var num = $scope.month.selectedDate.getUTCFullYear() - 2; num <= $scope.month.selectedDate.getUTCFullYear() + 1; num++) {
+                    var months = [];
+                    for (var i = 0; i < 12; i++) {
+                        months.push({
+                            num: i,
+                            isActualMonth: today.getUTCMonth() === i && today.getUTCFullYear() === num,
+                            isSelectedMonth: selectedDate && selectedDate.getUTCMonth() === i && selectedDate.getUTCFullYear() === num
+                        });
                     }
-                    $scope.years[count].push({
+                    $scope.years.push({
                         num: num,
-                        isActualYear: today.getUTCFullYear() === num,
-                        isSelectedYear: $scope.modelDate && $scope.modelDate.getUTCFullYear() === num
+                        months: months
                     });
-                    if ($scope.years[count].length === 5) {
-                        count++;
-                    }
                 }
 
             };
@@ -198,9 +205,9 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
 
 
             $scope.selectDay = function (date) {
-                $scope.modelDate = date;
-                !$scope.timepicker && $scope.close();
+                // $scope.modelDate = date;
                 $scope.generateMonth(angular.copy(date));
+                !$scope.timepicker && $scope.close(date);
             };
 
             $scope.addMonth = function (selectedDate) {
@@ -230,10 +237,11 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
                 }
             };
 
-            $scope.selectYear = function (year) {
+            $scope.selectYear = function (year, month) {
                 $scope.toggleYearSelection();
                 var newDate = angular.copy($scope.month.selectedDate);
                 newDate.setUTCFullYear(year);
+                newDate.setUTCMonth(month);
                 $scope.generateMonth(newDate);
             };
 
@@ -245,45 +253,41 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
 
             $scope.precYears = function () {
                 var newDate = angular.copy($scope.month.selectedDate);
-                newDate.setUTCFullYear(newDate.getUTCFullYear() - 21);
+                newDate.setUTCFullYear(newDate.getUTCFullYear() - 3);
                 $scope.generateMonth(newDate);
             };
 
             $scope.succYears = function () {
                 var newDate = angular.copy($scope.month.selectedDate);
-                newDate.setUTCFullYear(newDate.getUTCFullYear() + 21);
+                newDate.setUTCFullYear(newDate.getUTCFullYear() + 3);
                 $scope.generateMonth(newDate);
             };
 
             $scope.clear = function () {
 
                 ngModel.$setViewValue(null);
-                // ngModel.$modelValue = null;
-                // $scope.selectedTime = null;
-                $scope.modelDate = null;
+                ngModel.$render();
+                // $scope.modelDate = null;
                 $scope.opened = false;
                 $scope.generateMonth($scope.standardDate);
             };
 
             $scope.changeTime = function (time) {
-                $scope.modelDate.setHours(time.hour);
-                $scope.modelDate.setMinutes(time.minute);
-                $scope.modelDate.setSeconds(time.second);
+                ngModel.$modelValue.setHours(time.hour);
+                ngModel.$modelValue.setMinutes(time.minute);
+                ngModel.$modelValue.setSeconds(time.second);
             }
 
-            $scope.close = function () {
+            $scope.close = function (date) {
                 $scope.opened = false;
-                ngModel.$setViewValue($scope.modelDate);
+                ngModel.$setViewValue($filter("date")(date, $scope.dateFormat));
+                ngModel.$render();
                 $timeout(function () {
                     $scope.events.onDaySelected && $scope.events.onDaySelected();
                 });
-            }
-            // init(ngModel.$modelValue);
-
-
-            //functions
+            };
         },
-        template: '<div class="datepicker">    <div data-ng-click="opened=!disabled;daySelectionOpened=!disabled" class="selectable"><i class="fa fa-calendar"></i> {{modelDate | date: dateFormat | datepickerEmptyFilter: dateFormat}}</div>    <div class="datepicker-wrapper" data-ng-show="opened" data-ng-click="opened=!opened;daySelectionOpened=true;yearSelectionOpened=false;"></div>    <div class="datepicker-close" data-ng-show="opened" data-ng-click="opened=!opened;daySelectionOpened=true;yearSelectionOpened=false;">        <button type="button"></button> </div>    <div class="datepicker-table-wrapper table" data-ng-show="daySelectionOpened && opened">        <table>            <thead>                <tr class="month-header">                    <th><a data-ng-click="subMonth(month.selectedDate)">❮ {{getPreviousMonthName()}}</a></th>                    <th colspan="5">                        {{monthNames[month.selectedDate.getMonth()]}} <a data-ng-click="toggleYearSelection()" class="button-month" type="button"> {{month.selectedDate.getFullYear()}}</a></th>                    <th><a data-ng-click="addMonth(month.selectedDate)">{{getSuccessiveMonthName()}} ❯</a></th>                </tr>                <tr>                    <th data-ng-repeat="d in dayNames">{{d | substring}}</th>                </tr>            </thead>            <tbody>                <tr data-ng-repeat="week in month.weeks">                    <td data-ng-click="!day.isDisabled && selectDay(day.date)" data-ng-repeat="day in week" data-ng-class="{\'disabled\': day.isDisabled,\'selected-date\': day.isSelectedDate, \'today\': day.isToday, \'different-month\': !day.isDisabled && day.differentMonth}"><a>{{day.number}}</a></td>                </tr>                <tr>                    <td colspan="3"><select class="timeselect" data-ng-if="timepicker" data-ng-disabled="!modelDate" data-ng-model="selectedTime"                            ng-options="t.label for t in generatedTimes" data-ng-change="changeTime(selectedTime)"></select></td>                    <td colspan="4">                        <button style="margin-left: 5px" class="datepicker-button-clear" data-ng-if="timepicker" data-ng-click="close()">Select</button>                        <button type="button" class="datepicker-button-clear" data-ng-click="clear()">{{cleanName}}</button>                    </td>                </tr>            </tbody>        </table>    </div>    <div class="datepicker-table-wrapper table" data-ng-show="yearSelectionOpened && opened">        <table>            <thead>                <tr class="month-header">                    <th><a data-ng-click="precYears()">prev</a></th>                    <th colspan="3">{{years[0][0].num}}-{{years[years.length - 1][years[years.length - 1].length - 1].num}}</th>                    <th><a data-ng-click="succYears()">next</a></th>                </tr>            </thead>            <tbody>                <tr data-ng-repeat="list in years">                    <td data-ng-repeat="year in list" data-ng-click="selectYear(year.num)" data-ng-class="{\'selected-date\': year.isSelectedYear, \'today\': year.isActualYear}">                        <a>{{year.num}}</a> </td>                </tr>                <tr></tr>            </tbody>        </table>    </div></div>'
+        template: '<div class="datepicker">    <div class="datepicker-wrapper" data-ng-show="opened" data-ng-click="closeWrapper()"></div>    <div class="datepicker-close" data-ng-show="opened" data-ng-click="closeWrapper()">        <button type="button"></button>    </div>    <div class="datepicker-table-wrapper table" data-ng-show="daySelectionOpened && opened">        <table>            <thead>                <tr class="month-header">                    <th style="width: 15%"><a data-ng-click="subMonth(month.selectedDate)">{{getPreviousMonthName()}}</a></th>                    <th style="width: 70%" colspan="5">                    {{monthNames[month.selectedDate.getMonth()]}} <a data-ng-click="toggleYearSelection($event)" class="button-month"                            type="button"> {{month.selectedDate.getFullYear()}}</a></th>                    <th style="width: 15%"><a data-ng-click="addMonth(month.selectedDate)">{{getSuccessiveMonthName()}}</a></th>                </tr>                <tr>                    <th data-ng-repeat="d in dayNames">{{d | substring}}</th>                </tr>            </thead>            <tbody>                <tr data-ng-repeat="week in month.weeks">                    <td class="focus" data-ng-click="!day.isDisabled && selectDay(day.date)" data-ng-repeat="day in week" data-ng-class="{\'disabled\': day.isDisabled,\'selected-date\': day.isSelectedDate, \'today\': day.isToday, \'different-month\': !day.isDisabled && day.differentMonth}"><a>{{day.number}}</a></td>                </tr>                <tr>                    <td colspan="3"><select class="timeselect" data-ng-if="timepicker" data-ng-disabled="!modelDate" data-ng-model="selectedTime"                            ng-options="t.label for t in generatedTimes" data-ng-change="changeTime(selectedTime)"></select></td>                    <td colspan="4"> <button style="margin-left: 5px" class="datepicker-button-clear" data-ng-if="timepicker" data-ng-click="close()">Select</button>                        <button type="button" class="datepicker-button-clear" data-ng-click="clear()">{{cleanName}}</button>                        </td>                </tr>            </tbody>        </table>    </div>    <div class="datepicker-table-wrapper table" data-ng-show="yearSelectionOpened && opened">        <table>            <thead>                <tr class="month-header">                    <th style="width: 25%"><a data-ng-click="precYears()">prev</a></th>                    <th style="width: 50%" colspan="3">{{years[0].num}}-{{years[years.length - 1].num}}</th>                    <th style="width: 25%"><a data-ng-click="succYears()">next</a></th>                </tr>            </thead>            <tbody>                <tr data-ng-repeat="y in years">                    <td>{{y.num}}</td>                    <td colspan="4">                        <table class="month-in-year-selection">                            <tr>                                <td class="focus" data-ng-repeat="m in y.months | limitTo: 6" data-ng-click="selectYear(y.num, m.num)" data-ng-class="{\'selected-date\': m.isSelectedMonth, \'today\': m.isActualMonth}">{{monthNames[m.num] | substring}}</td>                            </tr>                            <tr>                                <td class="focus" data-ng-repeat="m in y.months | limitTo: 12 : 6" data-ng-click="selectYear(y.num, m.num)" data-ng-class="{\'selected-date\': m.isSelectedMonth, \'today\': m.isActualMonth}">{{monthNames[m.num] | substring}}</td>                            </tr>                        </table>                    </td>                </tr>                <tr></tr>            </tbody>        </table>    </div></div>'
     };
 }]).filter("datepickerEmptyFilter", function () {
     return function (input, placeholder) {

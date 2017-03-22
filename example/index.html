@@ -5,8 +5,7 @@
 
     <body ng-controller="ExampleController">
 
-        <button data-datepicker ng-model="day" data-options="options" data-events="events" ng-change="onChange(d)"></button>
-
+        <button type="text" data-datepicker ng-model="day" data-options="options" data-events="events" ng-change="onChange(d)"></button>
         {{day}}
 
         <button ng-click="clear()">Clear</button>
@@ -39,7 +38,7 @@
                 }
 
                 function onDaySelected() {
-                    console.log($scope.day);
+                    // console.log($scope.day);
                 }
             });
 

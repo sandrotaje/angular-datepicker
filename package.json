@@ -1,6 +1,6 @@
 {
   "name": "angular-datepicker",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "angular responsive datepicker",
   "main": "angular-datepicker.js",
   "directories": {

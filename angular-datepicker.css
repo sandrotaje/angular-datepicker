@@ -17,7 +17,7 @@
     /*opacity: 0;*/
 /*}*/
 
-.datepicker .table table{
+.datepicker .table > table{
     position: fixed;
     background-color: #f8faf9;
     line-height: 45px;
@@ -106,6 +106,16 @@
     background-color: #be1d2c;
     color: white;
     border-radius: 12px;
+}
+
+.datepicker .table tr td.focus:focus, .datepicker .table tr td.focus:active {
+    background-color: #c8c8c8;
+    color: white !important;
+    border-radius: 12px;
+}
+
+.datepicker table.month-in-year-selection {
+    text-align: center;
 }
 
 .datepicker-button-clear {

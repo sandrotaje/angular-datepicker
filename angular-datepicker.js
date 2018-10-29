@@ -281,14 +281,13 @@ angular.module("angular-datepicker", []).directive("datepicker", ['$timeout', 'p
             };
 
             $scope.close = function (date) {
-                console.log(date);
                 $scope.opened = false;
                 if($scope.timepicker){
                     date.setHours($scope.selectedTime.hour);
                     date.setMinutes($scope.selectedTime.minute);
                     date.setSeconds($scope.selectedTime.second);
                 }
-                ngModel.$setViewValue($filter("date")(date, $scope.dateFormat));
+                ngModel.$setViewValue($filter("date")(date, "yyyy-MM-ddTHH:mm:ssZ"));
                 ngModel.$render();
                 $timeout(function () {
                     $scope.events.onDaySelected && $scope.events.onDaySelected();
